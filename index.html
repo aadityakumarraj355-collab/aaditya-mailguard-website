@@ -1,0 +1,848 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d19">
+
+  <title>Aaditya AI MailGuard | Email Spam Classifier</title>
+  <meta name="description" content="Try Aaditya AI MailGuard, a machine-learning-powered email spam classification application.">
+
+  <style>
+    :root {
+      --bg: #080d19;
+      --surface: #111a2b;
+      --surface2: #172238;
+      --border: #29364d;
+      --text: #f4f7ff;
+      --muted: #a5b2c8;
+      --primary: #8187ff;
+      --cyan: #51d8ef;
+      --green: #4ade80;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 90px;
+    }
+
+    body {
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1120px, calc(100% - 36px));
+      margin: auto;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(8, 13, 25, .94);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(15px);
+    }
+
+    .nav-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      color: #080d19;
+      font-size: 22px;
+      background: linear-gradient(135deg, var(--primary), var(--cyan));
+    }
+
+    .gradient {
+      color: var(--cyan);
+      background: linear-gradient(90deg, #a4a7ff, var(--cyan));
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform .2s, opacity .2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      opacity: .92;
+    }
+
+    .btn-primary {
+      color: white;
+      background: linear-gradient(135deg, #777df5, #558fff);
+      border-color: transparent;
+    }
+
+    .btn-secondary {
+      color: white;
+      background: var(--surface);
+    }
+
+    .hero {
+      padding: 85px 0 76px;
+      background:
+        radial-gradient(ellipse at 5% 0%, #383d8544, transparent 45%),
+        radial-gradient(ellipse at 95% 35%, #12485b44, transparent 38%);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      align-items: center;
+      gap: 50px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 12px;
+      margin-bottom: 23px;
+      border: 1px solid #424c7d;
+      background: #191d3b;
+      border-radius: 30px;
+      color: #d0d2ff;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-size: clamp(39px, 5vw, 64px);
+      line-height: 1.1;
+      letter-spacing: -2px;
+    }
+
+    .hero-description {
+      color: var(--muted);
+      font-size: 16px;
+      margin: 23px 0 28px;
+      max-width: 610px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .small-note {
+      color: #8391a8;
+      font-size: 12px;
+      margin-top: 18px;
+    }
+
+    .preview {
+      padding: 27px;
+      border: 1px solid #33415c;
+      border-radius: 23px;
+      background: linear-gradient(145deg, #19263d, #101726);
+      box-shadow: 0 25px 80px #0004;
+    }
+
+    .preview-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .preview-top strong {
+      font-size: 15px;
+    }
+
+    .status {
+      color: var(--green);
+      background: #153526;
+      padding: 5px 9px;
+      border-radius: 7px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .mail-icon {
+      display: grid;
+      place-items: center;
+      width: 66px;
+      height: 66px;
+      margin-bottom: 17px;
+      border-radius: 19px;
+      background: #262c58;
+      font-size: 31px;
+    }
+
+    .preview h2 {
+      font-size: 23px;
+      margin-bottom: 8px;
+    }
+
+    .preview p {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-top: 23px;
+    }
+
+    .mini {
+      padding: 12px 5px;
+      text-align: center;
+      background: #202b40;
+      border-radius: 11px;
+    }
+
+    .mini strong, .mini span {
+      display: block;
+    }
+
+    .mini strong {
+      font-size: 11px;
+    }
+
+    .mini span {
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 4px;
+    }
+
+    .section {
+      padding: 75px 0;
+    }
+
+    .section-heading {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 38px;
+    }
+
+    .kicker {
+      color: var(--cyan);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+    }
+
+    .section-heading h2 {
+      font-size: clamp(28px, 4vw, 39px);
+      line-height: 1.2;
+      letter-spacing: -1px;
+      margin: 12px 0;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature-card {
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 17px;
+    }
+
+    .feature-icon {
+      font-size: 27px;
+      margin-bottom: 12px;
+    }
+
+    .feature-card h3 {
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .technology {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 11px;
+      margin-top: 24px;
+    }
+
+    .tag {
+      padding: 9px 14px;
+      border: 1px solid #35415a;
+      border-radius: 10px;
+      background: #141e30;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .demo-section {
+      background:
+        radial-gradient(ellipse at top, #20244b50, transparent 60%),
+        #0b1220;
+      border-top: 1px solid #202b3e;
+      border-bottom: 1px solid #202b3e;
+    }
+
+    .app-panel {
+      overflow: hidden;
+      border: 1px solid #34415a;
+      border-radius: 20px;
+      background: #0e1727;
+      box-shadow: 0 24px 80px #0003;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
+      padding: 19px 22px;
+      background: #141f32;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .app-header h3 {
+      font-size: 15px;
+    }
+
+    .app-header p {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .app-header .btn {
+      padding: 9px 13px;
+      font-size: 12px;
+    }
+
+    .iframe-wrap {
+      width: 100%;
+      background: white;
+    }
+
+    .iframe-wrap iframe {
+      display: block;
+      width: 100%;
+      height: 1050px;
+      border: 0;
+      background: white;
+    }
+
+    .fallback {
+      text-align: center;
+      padding: 23px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .fallback p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .disclaimer {
+      max-width: 850px;
+      margin: 20px auto 0;
+      text-align: center;
+      color: #8391a7;
+      font-size: 12px;
+    }
+
+    .about-card {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      max-width: 760px;
+      margin: auto;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+    }
+
+    .avatar {
+      flex: 0 0 95px;
+      width: 95px;
+      height: 95px;
+      display: grid;
+      place-items: center;
+      border-radius: 24px;
+      color: #080d19;
+      font-size: 33px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--cyan));
+    }
+
+    .about-card h3 {
+      font-size: 22px;
+      margin-bottom: 3px;
+    }
+
+    .role {
+      color: var(--cyan);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .about-card p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    footer {
+      padding: 27px 0;
+      background: #070b14;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    footer p, .footer-links {
+      color: #8592a8;
+      font-size: 12px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    @media (max-width: 850px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 35px;
+      }
+
+      .preview {
+        max-width: 560px;
+      }
+
+      .features {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .container {
+        width: calc(100% - 28px);
+      }
+
+      .nav-inner {
+        min-height: 64px;
+      }
+
+      .brand {
+        font-size: 14px;
+        gap: 8px;
+      }
+
+      .brand-icon {
+        width: 36px;
+        height: 36px;
+      }
+
+      .nav-links {
+        gap: 8px;
+      }
+
+      .nav-links a:not(.nav-demo) {
+        display: none;
+      }
+
+      h1 {
+        letter-spacing: -1.2px;
+      }
+
+      .hero {
+        padding: 58px 0;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .section {
+        padding: 55px 0;
+      }
+
+      .iframe-wrap iframe {
+        height: 1000px;
+      }
+
+      .about-card {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a class="brand" href="#home" aria-label="Home">
+        <span class="brand-icon">✉</span>
+        <span>Aaditya <span class="gradient">AI MailGuard</span></span>
+      </a>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#features">Features</a>
+        <a href="#technology">Technology</a>
+        <a href="#about">About</a>
+        <a class="btn btn-primary nav-demo" href="#classifier">Try Demo →</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow">
+            <span class="dot"></span>
+            AI-POWERED EMAIL CLASSIFICATION
+          </div>
+
+          <h1>
+            A smarter way to
+            <span class="gradient">identify spam.</span>
+          </h1>
+
+          <p class="hero-description">
+            Analyze email messages with machine learning and natural language
+            processing. Aaditya AI MailGuard predicts whether an email
+            resembles spam or legitimate correspondence.
+          </p>
+
+          <div class="actions">
+            <a class="btn btn-primary" href="#classifier">Try the Classifier →</a>
+            <a class="btn btn-secondary" href="#features">Explore Features</a>
+          </div>
+
+          <p class="small-note">
+            Academic portfolio project · Python · NLP · Scikit-learn · Streamlit
+          </p>
+        </div>
+
+        <div class="preview">
+          <div class="preview-top">
+            <strong>MailGuard AI</strong>
+            <span class="status">ML CLASSIFIER</span>
+          </div>
+
+          <div class="mail-icon">📨</div>
+          <h2>Intelligent email analysis</h2>
+          <p>
+            Enter an email message into the live classifier and view its
+            predicted category.
+          </p>
+
+          <div class="mini-grid">
+            <div class="mini">
+              <strong>TF-IDF</strong>
+              <span>Text features</span>
+            </div>
+            <div class="mini">
+              <strong>Naive Bayes</strong>
+              <span>ML model</span>
+            </div>
+            <div class="mini">
+              <strong>Streamlit</strong>
+              <span>Live interface</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-heading">
+          <span class="kicker">Key capabilities</span>
+          <h2>Simple, practical email classification</h2>
+          <p>
+            An interactive machine-learning application that converts
+            email text into a useful prediction.
+          </p>
+        </div>
+
+        <div class="features">
+          <article class="feature-card">
+            <div class="feature-icon">🧠</div>
+            <h3>Machine Learning</h3>
+            <p>
+              Uses a trained classifier to predict whether a message
+              resembles spam or legitimate email.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🔎</div>
+            <h3>Natural Language Processing</h3>
+            <p>
+              Transforms email text into numerical features that can be
+              processed by a machine-learning model.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Interactive Demo</h3>
+            <p>
+              Try the deployed classifier in your browser without
+              installing Python on your computer.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Model Evaluation</h3>
+            <p>
+              Machine-learning evaluation helps assess the model's
+              classification performance.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">💻</div>
+            <h3>Accessible Interface</h3>
+            <p>
+              A browser-based interface makes it straightforward to
+              enter text and review a prediction.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>Awareness of Email Risks</h3>
+            <p>
+              Provides an educational demonstration of spam detection.
+              Always verify suspicious emails independently.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="technology">
+      <div class="container">
+        <div class="section-heading">
+          <span class="kicker">Technology stack</span>
+          <h2>Built with machine-learning tools</h2>
+          <p>
+            A Python-based classification pipeline with an interactive
+            web interface.
+          </p>
+
+          <div class="technology">
+            <span class="tag">Python</span>
+            <span class="tag">Pandas</span>
+            <span class="tag">Scikit-learn</span>
+            <span class="tag">Natural Language Processing</span>
+            <span class="tag">TF-IDF</span>
+            <span class="tag">Multinomial Naive Bayes</span>
+            <span class="tag">Streamlit</span>
+            <span class="tag">HTML & CSS</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section demo-section" id="classifier">
+      <div class="container">
+        <div class="section-heading">
+          <span class="kicker">Live application</span>
+          <h2>Try Aaditya AI MailGuard</h2>
+          <p>
+            Use the classifier directly below. If the embedded application
+            does not load, launch it in a separate tab.
+          </p>
+        </div>
+
+        <div class="app-panel">
+          <div class="app-header">
+            <div>
+              <h3>Spam Email Classifier</h3>
+              <p>Live machine-learning application</p>
+            </div>
+
+            <a
+              class="btn btn-primary"
+              href="https://codectechnologyspam-emailclassifier-ircowiuujathafqcthyoni.streamlit.app/"
+              target="_blank"
+              rel="noopener noreferrer">
+              Launch App ↗
+            </a>
+          </div>
+
+          <div class="iframe-wrap">
+            <iframe
+              src="https://codectechnologyspam-emailclassifier-ircowiuujathafqcthyoni.streamlit.app/?embed=true"
+              title="Aaditya AI MailGuard classifier"
+              loading="lazy"
+              allow="clipboard-write">
+            </iframe>
+          </div>
+
+          <div class="fallback">
+            <p>
+              Having trouble with the embedded view? Open the classifier
+              separately.
+            </p>
+
+            <a
+              class="btn btn-secondary"
+              href="https://codectechnologyspam-emailclassifier-ircowiuujathafqcthyoni.streamlit.app/"
+              target="_blank"
+              rel="noopener noreferrer">
+              Open Classifier in New Tab ↗
+            </a>
+          </div>
+        </div>
+
+        <p class="disclaimer">
+          This is an educational machine-learning project. Predictions
+          may be incorrect and should not be treated as a guarantee
+          that an email is safe.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="container">
+        <div class="section-heading">
+          <span class="kicker">About</span>
+          <h2>Meet the project creator</h2>
+        </div>
+
+        <div class="about-card">
+          <div class="avatar" aria-hidden="true">AK</div>
+
+          <div>
+            <h3>Aaditya Kumar</h3>
+            <div class="role">B.Tech Computer Science & Engineering Student</div>
+            <p>
+              Interested in artificial intelligence, machine learning,
+              Python development, and building practical software projects.
+              Aaditya AI MailGuard demonstrates an email classification
+              workflow using NLP and machine learning.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <p>
+        © <span id="year"></span> Aaditya AI MailGuard. All rights reserved.
+      </p>
+
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
+        <a href="#classifier">Live Demo</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+  </script>
+</body>
+</html>
